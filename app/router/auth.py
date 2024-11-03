@@ -78,7 +78,7 @@ def password_reset(payload: schema.PasswordReset, db: Session = Depends(get_db),
             detail=password_check
         )
     
-    if verify_password(payload.new_password, user.password):
+    if verify_password(payload.new_password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Password is too weak. Similar to old password"

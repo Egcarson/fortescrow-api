@@ -3,15 +3,18 @@ from pydantic import BaseModel, ConfigDict, EmailStr
 from datetime import datetime
 from decimal import Decimal
 
+class EscrowStatus(str, Enum):
+    FUNDS_HELD = "funds_held"
+    FUNDS_RELEASED = "funds_released"
+
 class UserRole(str, Enum):
     BUYER = "buyer"
     SELLER = "seller"
     ADMIN = "admin"
 
-
 class OrderStatus(str, Enum):
     PENDING = "pending"
-    SHIPPED = "shipped"
+    IN_TRANSIT = "in_transit"
     DELIVERED = "delivered"
     CANCELLED = "cancelled"
 
@@ -75,28 +78,51 @@ class OrderCreate(OrderBase):
 class Order(OrderBase):
     id: int
     user_id: int
-    tracking_id: str
-    status: OrderStatus = OrderStatus.PENDING
+    status: OrderStatus =  OrderStatus.PENDING
     created_at: datetime = datetime.now()
 
     model_config = ConfigDict(from_attributes=True)
+
+class OrderStatusUpdate(BaseModel):
+    status: OrderStatus = OrderStatus.PENDING
+
+class DeliveryCreate(BaseModel):
+    delivery_address: str
+    delivery_date: datetime = datetime.now()
 
 class Delivery(BaseModel):
     id: int
     order_id: int
     tracking_id: str
+    delivery_address: str
+    delivery_date: datetime = datetime.now()
+    escrow_status: EscrowStatus = EscrowStatus.FUNDS_HELD
+    created_at: datetime = datetime.now()
 
     model_config = ConfigDict(from_attributes=True)
 
-class Escrow(BaseModel):
+class DeliveryResponse(BaseModel):
     id: int
-    buyer_id: int
-    seller_id: int
     order_id: int
-    amount: Decimal
-    is_released: bool = False
+    order: Order
+    tracking_id: str
+    delivery_address: str
+    delivery_date: datetime = datetime.now()
+    escrow_status: EscrowStatus = EscrowStatus.FUNDS_HELD
+    created_at: datetime = datetime.now()
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# class Escrow(BaseModel):
+#     id: int
+#     buyer_id: int
+#     seller_id: int
+#     order_id: int
+#     amount: Decimal
+#     is_released: bool = False
+
+#     model_config = ConfigDict(from_attributes=True)
 
 class PasswordReset(BaseModel):
     email: EmailStr

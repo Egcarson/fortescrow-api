@@ -1,7 +1,8 @@
 import re
+import uuid
 from sqlalchemy.orm import Session
 from app import schema
-from app.crud import user as user_crud
+from app.crud import user as user_crud, order as order_crud
 
 from passlib.context import CryptContext
 
@@ -62,3 +63,21 @@ def update_password(payload: schema.PasswordReset, db: Session):
     db.commit()
     db.refresh(user)
     return user
+
+# logic to genearte tracking id 
+def generate_tracking_id():
+    return str(uuid.uuid4()) 
+
+#logic to check order status
+def order_status_check(order_id: int, db: Session):
+    order = order_crud.get_order_by_id(order_id, db)
+    if order.status == schema.OrderStatus.PENDING:
+        return "This order has already been processed and pending"
+    if order.status == schema.OrderStatus.IN_TRANSIT:
+        return "This order is already in transit"
+    if order.status == schema.OrderStatus.DELIVERED:
+        return "This order has already been delivered"
+    if order.status == schema.OrderStatus.CANCELLED:
+        return "This order has been cancelled"
+    return "continue" 
+        

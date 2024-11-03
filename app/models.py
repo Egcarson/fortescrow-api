@@ -3,7 +3,7 @@ from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Enum, DECIM
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 from sqlalchemy.sql.expression import text
-from app.schema import UserRole, OrderStatus, KYCStatus, DocumentType
+from app.schema import UserRole, OrderStatus, KYCStatus, DocumentType, EscrowStatus
 
 
 from app.database import Base
@@ -54,8 +54,7 @@ class Order(Base):
     item_name = Column(String, nullable=False)
     quantity = Column(Integer, nullable=False)
     price = Column(DECIMAL(10, 2), nullable=False)
-    tracking_id = Column(String, nullable=False)
-    # E.g "pending", "shipped", "delivered", "cancelled"
+    # E.g "pending", "in_transit", "delivered", "cancelled"
     status = Column(Enum(OrderStatus), default=OrderStatus.PENDING)
     created_at = Column(TIMESTAMP(timezone=True),
                         nullable=False, server_default=text('now()'))
@@ -70,21 +69,25 @@ class Delivery(Base):
     id = Column(Integer, primary_key=True, index=True)
     order_id = Column(Integer, ForeignKey("orders.id"))
     tracking_id = Column(String, unique=True, nullable=False)
+    escrow_status = Column(Enum(EscrowStatus), default=EscrowStatus.FUNDS_HELD)
+    delivery_address = Column(String, nullable=False)
+    delivery_date = Column(TIMESTAMP(timezone=True), nullable=True)
+    created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
 
     order = relationship("Order", back_populates="delivery")
 
 
-class Escrow(Base):
-    __tablename__ = "escrows"
+# class Escrow(Base):
+#     __tablename__ = "escrows"
 
-    id = Column(Integer, primary_key=True, index=True)
-    buyer_id = Column(Integer, ForeignKey("users.id"))
-    seller_id = Column(Integer, ForeignKey("users.id"))
-    order_id = Column(Integer, ForeignKey("orders.id"))
-    amount = Column(DECIMAL(10, 2), nullable=False)
-    # Whether the funds have been released
-    is_released = Column(Boolean, default=False)
+#     id = Column(Integer, primary_key=True, index=True)
+#     buyer_id = Column(Integer, ForeignKey("users.id"))
+#     seller_id = Column(Integer, ForeignKey("users.id"))
+#     order_id = Column(Integer, ForeignKey("orders.id"))
+#     amount = Column(DECIMAL(10, 2), nullable=False)
+#     # Whether the funds have been released
+#     is_released = Column(Boolean, default=False)
 
-    buyer = relationship("User", foreign_keys=[buyer_id])
-    seller = relationship("User", foreign_keys=[seller_id])
-    order = relationship("Order")
+#     buyer = relationship("User", foreign_keys=[buyer_id])
+#     seller = relationship("User", foreign_keys=[seller_id])
+#     order = relationship("Order")
