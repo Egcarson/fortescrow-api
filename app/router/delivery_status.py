@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.orm import Session
-from typing import List
-from app.crud import user as user_crud, delivery as dev_crud, order as order_crud
+# from typing import List
+from app.crud import delivery as dev_crud
 from app import schema, oauth2, models
 from app.database import get_db
 

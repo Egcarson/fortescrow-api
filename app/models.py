@@ -1,4 +1,4 @@
-import enum
+# import enum
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Enum, DECIMAL
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.sqltypes import TIMESTAMP

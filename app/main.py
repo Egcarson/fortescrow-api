@@ -1,4 +1,4 @@
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.router import auth, user, kyc, order, delivery, delivery_status
 from app import models
@@ -17,8 +17,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-app = FastAPI()
 
 app.include_router(auth.router)
 app.include_router(delivery_status.router)
