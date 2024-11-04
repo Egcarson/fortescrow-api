@@ -129,6 +129,9 @@ class PasswordReset(BaseModel):
     new_password: str
     confirm_password: str
 
+class LoginForm(BaseModel):
+    username: str
+    password: str  # noqa: F821
 
 # Testing the classes
 
